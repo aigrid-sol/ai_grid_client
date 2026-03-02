@@ -11,7 +11,7 @@ client = OpenAI(
 
 
 response = client.chat.completions.create(
-    model="voxtral-mini-2602",
+    model="gpt-oss-120b",
     messages=[
         {"role": "user", "content": "Hello!"}
     ]
