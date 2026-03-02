@@ -11,7 +11,7 @@ def encode_image(path):
         return base64.b64encode(f.read()).decode("utf-8")
 
 
-image_base64 = encode_image("/home/user/ali/client/image4.jpg")
+image_base64 = encode_image("~/image4.jpg")
 
 client = OpenAI(
     base_url="http://app.ai-grid.io:4000/v1",
