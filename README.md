@@ -38,7 +38,7 @@ pip install llama-index llama-index-llms-openai-like   # for qwen_tool_caller.py
 
    ```
    AUDIO_PATH=/path/to/audio.mp3
-   VOXTAL_BASE_URL=http://localhost:8055/v1   # optional, default shown
+   VOXTAL_BASE_URL=http://localhost:8000/v1   # optional, default shown
    VOXTAL_API_KEY=sk-placeholder              # optional
    VOXTAL_MODEL=mistralai/Voxtral-Mini-4B-Realtime-2602   # optional
    ```
