@@ -1,0 +1,27 @@
+# Nasdaq & AMEX
+
+Stocks in bold rose or fell 5% or more
+
+**USA TODAY**  
+[www.usatoday.com](www.usatoday.com)  
+**money.usatoday.com**
+
+---
+
+### 52-week High | Low | Stock | Last Change | 52-week High | 52-week Low | Stock | Last Change
+---
+
+#### A  
+9.19 | 6.89 | ABX Air Inc | 7.52 | -0.10 | 68.88 | 50.65 | Biomet Corp | 50.05 | -4.57  
+33.25 | 12.40 | ACME Inc | 13.58 | -1.57 | 22.25 | 13.01 | BiotechGdTx | 20.64 | -0.84  
+31.38 | 13.51 | ADA Inc | 20.96 | -1.36 | 18.21 | 10.73 | BirchMtg | 9.62 | -0.45  
+27.14 | 12.88 | ADC Tech | 23.21 | -0.13 | 18.21 | 10.73 | BlackCat | 7.19 | -0.70  
+30.40 | 16.70 | ADEC Ag | 25.72 | -0.73 | 34.35 | 24.15 | BlueLine | 40.30 | -1.10  
+16.45 | 10.47 | AFC Enth | 15.40 | -0.14 | 24.35 | 19.91 | BobEvn | 22.99 | -0.99  
+8.37 | 4.50 | ASE Tech | 7.76 | -0.40 | 26.45 | 19.91 | Bodine | 15.45 | -0.45  
+19.25 | 12.75 | ASML | 11.67 | -0.03 | 26.45 | 19.91 | Bookhan | 6.94 | -0.06  
+27.38 | 16.39 | ASML Hld | 11.67 | -0.03 | 26.45 | 19.91 | BostonSci | 31.18 | -0.07  
+19.82 | 10.47 | ATI Tech | 17.89 | -0.68 | 31.90 | 21.10 | BostonSci | 31.18 | -0.07  
+33.62 | 20.53 | ATI | 17.89 | -0.68 | 31.90 | 21.10 | Biogen | 11.53 | -0.20  
+39.20 | 16.76 | ATI | 17.89 | -0.68 | 31.90 | 21.10 | BioNTech | 11.53 | -0.20  
+4.24 | 1.99 | AVI Bio | 3.62 | -0.02 | 46.72 | 26.65 | BrightHoriz | 38.90 | -0.80

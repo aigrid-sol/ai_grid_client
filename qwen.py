@@ -4,13 +4,12 @@ import os
 load_dotenv()
 
 AI_GRID_KEY = os.getenv("AI_GRID_KEY")
-client = OpenAI(
-    base_url="http://app.ai-grid.io:4000/v1",
-    api_key=AI_GRID_KEY,
-)
+BASE_URL = os.getenv("BASE_URL")
+MODEL = os.getenv("QWEN_MODEL")
+client = OpenAI(base_url=BASE_URL, api_key=AI_GRID_KEY)
 
 response = client.chat.completions.create(
-    model="Qwen3-30B-A3B-Thinking",
+    model=MODEL,
     messages=[
         {"role": "user", "content": "Hello!"}
     ]

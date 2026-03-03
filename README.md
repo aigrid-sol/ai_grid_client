@@ -8,8 +8,9 @@ Python client examples for the **AI Grid** API (`app.ai-grid.io`). Uses the Open
 - [openai](https://pypi.org/project/openai/) — OpenAI Python client
 - [python-dotenv](https://pypi.org/project/python-dotenv/) — load `.env`
 - [llama-index](https://pypi.org/project/llama-index/) + [llama-index-llms-openai-like](https://pypi.org/project/llama-index-llms-openai-like/) — for `qwen_tool_caller.py` (ReActAgent + OpenAILike; custom model names supported)
-
 ```bash
+pip install -r requirements.txt
+# or selectively:
 pip install openai python-dotenv
 pip install llama-index llama-index-llms-openai-like   # for qwen_tool_caller.py
 ```
@@ -18,13 +19,33 @@ pip install llama-index llama-index-llms-openai-like   # for qwen_tool_caller.py
 
 1. **Clone or use this repo.**
 
-2. **Create a `.env` file** in this directory with your API key:
+2. **Create a `.env` file** with at least:
 
    ```
+   BASE_URL=http://app.ai-grid.io:4000/v1
    AI_GRID_KEY=your_api_key_here
+   QWEN_MODEL=Qwen3-30B-A3B-Thinking
+   OSS_MODEL=gpt-oss-120b
+   EMBEDDING_MODEL=Alibaba-NLP/gte-Qwen2-7B-instruct
+   OCR_MODEL=deepseek-ocr
+   IMAGE_FOLDER=/path/to/ali/client/images
+   OCR_BATCH_CONCURRENCY=5
+   AI_GRID_BASE_URL=http://app.ai-grid.io:4000/v1
+   AI_GRID_TOOL_MODEL=Qwen3-30B-A3B-Thinking
+   ```
+
+   For **voxtral_client.py** (local Voxtral, e.g. `voxtral-live` container), add:
+
+   ```
+   AUDIO_PATH=/path/to/audio.mp3
+   VOXTAL_BASE_URL=http://localhost:8055/v1   # optional, default shown
+   VOXTAL_API_KEY=sk-placeholder              # optional
+   VOXTAL_MODEL=mistralai/Voxtral-Mini-4B-Realtime-2602   # optional
    ```
 
    Do not commit `.env` (it is in `.gitignore`).
+
+3. **`images/`** — Sample images for testing OCR. Run `ocr.py` or `ocr_batch.py` to run OCR v2 on these images; results are saved as `.txt` files next to each image.
 
 ## Scripts
 
@@ -33,8 +54,10 @@ pip install llama-index llama-index-llms-openai-like   # for qwen_tool_caller.py
 | **qwen.py** | Chat completion with **Qwen3-30B-A3B-Thinking**. Sends a simple "Hello!" and prints the reply. |
 | **embeding_qwen_alibaba.py** | **Embeddings** with **Alibaba-NLP/gte-Qwen2-7B-instruct**. Gets a vector for the input text and prints its length. |
 | **oss.py** | Chat completion with **gpt-oss-120b**. Sends "Hello!" and prints the reply. |
-| **ocr.py** | **Image OCR** with **deepseek-ocr**. Encodes a local image (e.g. `image4.jpg`) as base64, sends it with the prompt "Free OCR.", and prints the extracted text and response time. |
+| **ocr.py** | **Image OCR** (OCR v2). Reads images from `IMAGE_FOLDER`, sends them with prompt "Free OCR.", prints extracted text and response time. Use `images/` for test images; results are written as `.txt` next to each image. |
+| **ocr_batch.py** | **Batch OCR** (OCR v2). Same as ocr.py but sends multiple images concurrently; set `OCR_BATCH_CONCURRENCY` in `.env`. |
 | **qwen_tool_caller.py** | **Tool calling** with LlamaIndex: ReActAgent, FunctionTool, OpenAILike (Qwen3-30B-A3B-Thinking). Custom model names; server must support tool calling (e.g. vLLM `--enable-auto-tool-choice`). |
+| **voxtral_client.py** | **Voxtral** transcription: uses `AUDIO_PATH` from `.env`, calls local Voxtral server (e.g. `voxtral-live` container). `python voxtral_client.py` for REST transcription; `python voxtral_client.py realtime` for WebSocket `/v1/realtime`. |
 
 All scripts use:
 
@@ -56,7 +79,7 @@ python qwen_tool_caller.py
 **Notes:**
 
 - **qwen_tool_caller.py** — Add tools with `FunctionTool.from_defaults(fn=your_function)`. Uses OpenAILike so model names like `Qwen3-30B-A3B-Thinking` work; endpoint must support tool calling.
-- **ocr.py** — Image path is hardcoded; change it in the script if needed.
+- **ocr.py / ocr_batch.py** — Use `IMAGE_FOLDER` in `.env` (e.g. `ali/client/images`). The `images/` folder includes sample images for testing; OCR v2 results are written as `.txt` next to each image.
 
 ## License
 

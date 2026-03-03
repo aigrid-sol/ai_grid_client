@@ -1,0 +1,11 @@
+openai
+python-dotenv
+
+# optional: qwen_tool_caller.py
+# llama-index
+# llama-index-llms-openai-like
+
+# optional: voxtral_client.py realtime mode
+# websockets
+# librosa
+# numpy
