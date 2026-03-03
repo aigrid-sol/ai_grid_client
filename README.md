@@ -56,6 +56,7 @@ pip install llama-index llama-index-llms-openai-like   # for qwen_tool_caller.py
 | **oss.py** | Chat completion with **gpt-oss-120b**. Sends "Hello!" and prints the reply. |
 | **ocr.py** | **Image OCR** (OCR v2). Reads images from `IMAGE_FOLDER`, sends them with prompt "Free OCR.", prints extracted text and response time. Use `images/` for test images; results are written as `.txt` next to each image. |
 | **ocr_batch.py** | **Batch OCR** (OCR v2). Same as ocr.py but sends multiple images concurrently; set `OCR_BATCH_CONCURRENCY` in `.env`. |
+| **ocr_doc.py** | **Long-doc OCR**: PDF → page images → each page split into 3 windows (top, medium, bottom) → sequential OCR per window. Output: one `.txt` per page plus a full-doc `.txt`. Requires `pdf2image` + system poppler. |
 | **qwen_tool_caller.py** | **Tool calling** with LlamaIndex: ReActAgent, FunctionTool, OpenAILike (Qwen3-30B-A3B-Thinking). Custom model names; server must support tool calling (e.g. vLLM `--enable-auto-tool-choice`). |
 | **voxtral_client.py** | **Voxtral** transcription: uses `AUDIO_PATH` from `.env`, calls local Voxtral server (e.g. `voxtral-live` container). `python voxtral_client.py` for REST transcription; `python voxtral_client.py realtime` for WebSocket `/v1/realtime`. |
 
@@ -73,6 +74,8 @@ python qwen.py
 python embeding_qwen_alibaba.py
 python oss.py
 python ocr.py
+python ocr_batch.py
+python ocr_doc.py path/to/doc.pdf -o path/to/output_dir
 python qwen_tool_caller.py
 ```
 
@@ -80,6 +83,18 @@ python qwen_tool_caller.py
 
 - **qwen_tool_caller.py** — Add tools with `FunctionTool.from_defaults(fn=your_function)`. Uses OpenAILike so model names like `Qwen3-30B-A3B-Thinking` work; endpoint must support tool calling.
 - **ocr.py / ocr_batch.py** — Use `IMAGE_FOLDER` in `.env` (e.g. `ali/client/images`). The `images/` folder includes sample images for testing; OCR v2 results are written as `.txt` next to each image.
+- **ocr_doc.py** — For long PDFs: converts PDF to images, splits each page into 3 vertical windows (top, medium, bottom), runs OCR on each window sequentially. Optional `.env`: `OCR_DPI` (default 200), `OCR_WINDOWS` (default 3). Requires `poppler-utils` on the system.
+
+**ocr_doc.py — install and run:**
+
+```bash
+cd /home/user/ali/client
+pip install pdf2image Pillow   # if not already
+# On Debian/Ubuntu: apt install poppler-utils  (for pdf2image)
+
+python ocr_doc.py path/to/document.pdf
+python ocr_doc.py path/to/document.pdf -o ./ocr_out --dpi 200 --windows 3
+```
 
 ## License
 

@@ -1,5 +1,7 @@
 openai
 python-dotenv
+pdf2image
+Pillow
 
 # optional: qwen_tool_caller.py
 # llama-index
