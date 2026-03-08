@@ -1,3 +1,7 @@
+"""
+Long-document OCR: PDF → page images → split each page into vertical windows → sequential OCR per window.
+Uses BASE_URL, AI_GRID_KEY, OCR_MODEL from .env; optional OCR_DPI, OCR_WINDOWS.
+"""
 import argparse
 import base64
 import io
@@ -36,11 +40,13 @@ WINDOW_NAMES = ("top", "medium", "bottom")
 
 
 def pdf_to_images(pdf_path: Path, dpi: int) -> list[tuple[int, Image.Image]]:
+    """Convert PDF to a list of (1-based page number, PIL Image) per page."""
     images = convert_from_path(str(pdf_path), dpi=dpi, fmt="JPEG", thread_count=2)
     return [(i + 1, img) for i, img in enumerate(images)]
 
 
 def split_into_windows(image: Image.Image, n: int = 3) -> list[tuple[str, Image.Image]]:
+    """Split image into n horizontal strips; return list of (window_name, crop)."""
     w, h = image.size
     if image.mode != "RGB":
         image = image.convert("RGB")
@@ -56,6 +62,7 @@ def split_into_windows(image: Image.Image, n: int = 3) -> list[tuple[str, Image.
 
 
 def encode_pil_image(image: Image.Image) -> str:
+    """Encode PIL image as JPEG and return base64 string."""
     buf = io.BytesIO()
     if image.mode not in ("RGB", "L"):
         image = image.convert("RGB")
@@ -64,6 +71,7 @@ def encode_pil_image(image: Image.Image) -> str:
 
 
 def ocr_window(image: Image.Image) -> str | None:
+    """Run OCR on a single image; return extracted text or None on error."""
     b64 = encode_pil_image(image)
     kwargs = {
         "model": OCR_MODEL,
@@ -90,6 +98,7 @@ def ocr_window(image: Image.Image) -> str | None:
 
 
 def process_page(page_num: int, image: Image.Image, windows_per_page: int) -> str:
+    """Split page into windows, OCR each, return concatenated text."""
     parts = []
     windows = split_into_windows(image, n=windows_per_page)
     for name, crop in windows:
@@ -105,16 +114,17 @@ def process_page(page_num: int, image: Image.Image, windows_per_page: int) -> st
 
 
 def main():
-    p = argparse.ArgumentParser(description="PDF → images → 3 windows (top/medium/bottom) → sequential OCR")
+    """Parse CLI (pdf path, output dir, DPI, windows), run PDF OCR, write per-page and full-doc .txt."""
+    p = argparse.ArgumentParser(description="PDF → images → vertical windows → sequential OCR")
     p.add_argument("pdf", type=Path, help="Path to PDF file")
-    p.add_argument("-o", "--output-dir", type=Path, default=None, help="Directory for page .txt files (default: next to PDF)")
-    p.add_argument("--dpi", type=int, default=OCR_DPI, help="DPI for PDF→image (default from OCR_DPI)")
-    p.add_argument("--windows", type=int, default=OCR_WINDOWS, help="Windows per page (default 3: top, medium, bottom)")
+    p.add_argument("-o", "--output-dir", type=Path, default=None, help="Output directory (default: next to PDF)")
+    p.add_argument("--dpi", type=int, default=OCR_DPI, help="DPI for PDF→image")
+    p.add_argument("--windows", type=int, default=OCR_WINDOWS, help="Windows per page (default 3)")
     args = p.parse_args()
 
     pdf_path = args.pdf.resolve()
     if not pdf_path.exists():
-        print(f"Error: not found: {pdf_path}", file=sys.stderr)
+        print("Error: PDF not found.", file=sys.stderr)
         sys.exit(1)
 
     out_dir = args.output_dir or pdf_path.parent
@@ -126,7 +136,7 @@ def main():
         sys.exit(1)
 
     n_windows = max(1, args.windows)
-    print(f"PDF: {pdf_path}  DPI: {args.dpi}  Windows/page: {n_windows}  Out: {out_dir}")
+    print(f"PDF: {pdf_path.name}  DPI: {args.dpi}  Windows/page: {n_windows}  Out: {out_dir.name}")
 
     pages = pdf_to_images(pdf_path, args.dpi)
     print(f"Pages: {len(pages)}\n")
@@ -141,7 +151,7 @@ def main():
 
     combined = out_dir / f"{pdf_path.stem}_full.txt"
     combined.write_text("\n\n".join(full_text), encoding="utf-8")
-    print(f"\nDone. Full doc: {combined}")
+    print(f"\nDone. Full doc: {combined.name}")
 
 
 if __name__ == "__main__":

@@ -3,6 +3,11 @@ python-dotenv
 pdf2image
 Pillow
 
+# langraph_oss.py
+langgraph
+langchain-core
+langchain-openai
+
 # optional: qwen_tool_caller.py
 # llama-index
 # llama-index-llms-openai-like

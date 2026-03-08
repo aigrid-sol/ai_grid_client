@@ -1,3 +1,7 @@
+"""
+Batch OCR: process multiple images concurrently via the configured OCR API.
+Uses IMAGE_FOLDER and OCR_BATCH_CONCURRENCY from .env; endpoint and key from BASE_URL and AI_GRID_KEY.
+"""
 import asyncio
 import base64
 import os
@@ -5,21 +9,21 @@ import sys
 import time
 from pathlib import Path
 
-from openai import AsyncOpenAI
 from dotenv import load_dotenv
+from openai import AsyncOpenAI
 
 load_dotenv()
 
 BASE_URL = os.getenv("BASE_URL")
 API_KEY = os.getenv("AI_GRID_KEY")
 OCR_MODEL = os.getenv("OCR_MODEL")
-IMAGE_FOLDER = Path(os.getenv("IMAGE_FOLDER")).expanduser().resolve()
-CONCURRENCY = int(os.getenv("OCR_BATCH_CONCURRENCY"))
+IMAGE_FOLDER = Path(os.getenv("IMAGE_FOLDER", "")).expanduser().resolve()
+CONCURRENCY = int(os.getenv("OCR_BATCH_CONCURRENCY", "5"))
 
 client = AsyncOpenAI(base_url=BASE_URL, api_key=API_KEY, timeout=120.0)
 
 EXTRA_BODY = None
-if "localhost" in BASE_URL or "127.0.0.1" in BASE_URL:
+if BASE_URL and ("localhost" in BASE_URL or "127.0.0.1" in BASE_URL):
     EXTRA_BODY = {
         "skip_special_tokens": False,
         "vllm_xargs": {
@@ -31,11 +35,16 @@ if "localhost" in BASE_URL or "127.0.0.1" in BASE_URL:
 
 
 def encode_image(path: Path) -> str:
+    """Read image file and return base64-encoded bytes."""
     with open(path, "rb") as f:
         return base64.b64encode(f.read()).decode("utf-8")
 
 
 async def ocr_one(image_path: Path, semaphore: asyncio.Semaphore) -> tuple[Path, str | None, float]:
+    """
+    Run OCR on a single image (rate-limited by semaphore).
+    Returns (path, extracted_text_or_none, elapsed_seconds).
+    """
     async with semaphore:
         try:
             image_base64 = encode_image(image_path)
@@ -76,22 +85,24 @@ async def ocr_one(image_path: Path, semaphore: asyncio.Semaphore) -> tuple[Path,
 
 
 async def run_batch(image_paths: list[Path]) -> list[tuple[Path, str | None, float]]:
+    """Process all images with bounded concurrency; returns list of (path, text, elapsed)."""
     semaphore = asyncio.Semaphore(CONCURRENCY)
     tasks = [ocr_one(p, semaphore) for p in image_paths]
     return await asyncio.gather(*tasks)
 
 
 def main():
-    print(f"Base URL: {BASE_URL}  Concurrency: {CONCURRENCY}")
+    """Discover images in the configured folder, run batch OCR, and write .txt results next to each image."""
+    print("Using configured endpoint. Concurrency:", CONCURRENCY)
 
     folder = Path(IMAGE_FOLDER)
     if not folder.exists():
-        print(f"Error: IMAGE_FOLDER does not exist: {folder}", file=sys.stderr)
+        print("Error: IMAGE_FOLDER does not exist.", file=sys.stderr)
         sys.exit(1)
 
     images = sorted(folder.glob("*.jpg")) + sorted(folder.glob("*.jpeg"))
     if not images:
-        print(f"No .jpg/.jpeg files in {folder}", file=sys.stderr)
+        print("No .jpg/.jpeg files in the configured folder.", file=sys.stderr)
         sys.exit(1)
 
     print(f"Processing {len(images)} images (max {CONCURRENCY} at a time)...\n")
