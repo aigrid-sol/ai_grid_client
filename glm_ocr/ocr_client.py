@@ -1,4 +1,4 @@
-from __future__ import annotations
+"from __future__ import annotations
 
 import argparse
 import base64
@@ -43,7 +43,7 @@ def main() -> int:
         description="GLM OCR client (OpenAI-compatible image-to-text)."
     )
     parser.add_argument(
-        "--image",/home/user/ali/client/images/1.jpg
+        "--image",
         default="",
         help="Local image path.",
     )
