@@ -16,3 +16,6 @@ langchain-openai
 # websockets
 # librosa
 # numpy
+
+# interactive_chat.py
+rich
